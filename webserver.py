@@ -152,11 +152,14 @@ def start_udp_server():
     print("UDP Echo Server berjalan di port", UDP_PORT)
 
     while True:
-        data, address = udp_socket.recvfrom(BUFFER_SIZE)
+        try:
+            data, address = udp_socket.recvfrom(BUFFER_SIZE)
 
-        print("UDP dari", address, ":", data.decode())
+            print("UDP dari", address, ":", data.decode(errors="ignore"))
 
-        udp_socket.sendto(data, address)
+            udp_socket.sendto(data, address)
+        except Exception as error:
+            print("UDP Server Error:", error)
 
 
 def main():

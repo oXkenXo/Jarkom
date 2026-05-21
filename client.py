@@ -3,12 +3,12 @@ import time
 import argparse
 import threading
 
-PROXY_HOST = "192.168.1.11"
+PROXY_HOST = "127.0.0.1"
 PROXY_PORT = 8080
 
 BUFFER_SIZE = 4096
 
-UDP_HOST = "192.168.1.10"
+UDP_HOST = "127.0.0.1"
 UDP_PORT = 9000
 
 UDP_PACKET_COUNT = 10
@@ -72,9 +72,12 @@ def mode_udp():
     rtt_list = []
     packet_sent = 0
     packet_received = 0
+    total_bytes_received = 0
 
     print("Mode UDP QOS")
     print("Client mengirim packet UDP ke server...")
+
+    start_udp_time = time.time()
 
     for i in range(1, UDP_PACKET_COUNT + 1):
         message = f"Packet UDP ke-{i}"
@@ -91,6 +94,7 @@ def mode_udp():
 
             rtt_list.append(rtt)
             packet_received += 1
+            total_bytes_received += len(data)
 
             print("Packet", i, "RTT", round(rtt, 4), "detik")
 
@@ -102,12 +106,27 @@ def mode_udp():
         
     udp_socket.close()
 
+    end_udp_time = time.time()
+    total_time = end_udp_time - start_udp_time
+
     packet_lost = packet_sent - packet_received
 
     if packet_sent > 0:
         packet_loss = (packet_lost / packet_sent) * 100
     else:
         packet_loss = 0
+
+    # Hitung Jitter (rata-rata selisih absolut antara RTT berturut-turut)
+    jitter = 0
+    if len(rtt_list) > 1:
+        jitter = sum(abs(rtt_list[j] - rtt_list[j-1]) for j in range(1, len(rtt_list))) / (len(rtt_list) - 1)
+
+    # Hitung Throughput
+    throughput_bytes_per_sec = 0
+    throughput_kbps = 0
+    if total_time > 0:
+        throughput_bytes_per_sec = total_bytes_received / total_time
+        throughput_kbps = (total_bytes_received * 8) / (total_time * 1000)
 
     print("\nStatistik RTT:")
 
@@ -125,6 +144,8 @@ def mode_udp():
         print("Avg RTT: -")
         print("Max RTT: -")
 
+    print("Jitter:", round(jitter, 6), "detik")
+    print("Throughput:", round(throughput_bytes_per_sec, 2), "Bytes/detik (", round(throughput_kbps, 4), "kbps)")
     print("Packet dikirim:", packet_sent)
     print("Packet diterima:", packet_received)
     print("Packet hilang:", packet_lost)
