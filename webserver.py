@@ -80,13 +80,15 @@ def handle_client(client_socket, client_address):
                 content = f.read()
                 
             # Deteksi content type sederhana
-            content_type = "text/html"
+            content_type = "text/html; charset=utf-8"
             if filepath.endswith(".css"):
                 content_type = "text/css"
             elif filepath.endswith(".png"):
                 content_type = "image/png"
             elif filepath.endswith(".ico"):
                 content_type = "image/x-icon"
+            elif filepath.endswith(".mp4"):
+                content_type = "video/mp4"
                 
             # Kirim response 200 OK
             response_headers = (
