@@ -1,95 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tugas Besar Jaringan Komputer</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="assets/iflab.png">
-</head>
-<body>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" href="assets/iflab.png" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <img src="assets/iflab.png" alt="IFLAB Logo" width="70" />
+      <h1>Tugas Besar Jaringan Komputer</h1>
+      <p>Arsitektur: Client &rarr; Proxy Server &rarr; Web Server</p>
+    </header>
 
-<!-- HEADER -->
-<header>
-    <img src="assets/iflab.png" alt="IFLAB Logo" width="70">
-    <h1>Tugas Besar Jaringan Komputer</h1>
-    <p>Arsitektur: Client &rarr; Proxy Server &rarr; Web Server</p>
-</header>
+    <!-- NAVBAR -->
+    <nav>
+      <a href="index.html" class="active">Home</a>
+      <a href="osi.html">OSI Model</a>
+      <a href="tcpip.html">TCP/IP</a>
+      <a href="qos.html">QoS</a>
+      <a href="implementation.html">Socket</a>
+    </nav>
 
-<!-- NAVBAR -->
-<nav>
-    <a href="index.html" class="active">Home</a>
-    <a href="osi.html">OSI Model</a>
-    <a href="tcpip.html">TCP/IP</a>
-    <a href="qos.html">QoS</a>
-    <a href="implementation.html">Socket</a>
-</nav>
-
-<!-- CONTAINER -->
-<main class="container">
-    <!-- INFO KELOMPOK -->
-    <section class="card">
+    <!-- CONTAINER -->
+    <main class="container">
+      <!-- INFO KELOMPOK -->
+      <section class="card">
         <h3>Kelompok Tugas Besar</h3>
         <p><strong>Anggota Kelompok:</strong></p>
-        <ul style="margin-left: 20px; margin-top: 10px;">
-            <li>Nama Anggota 1 - NIM 1</li>
-            <li>Nama Anggota 2 - NIM 2</li>
-            <li>Keanu Fibie Dimasyqi - 103012430045 3</li>
+        <ul style="margin-left: 20px; margin-top: 10px">
+          <li>Muhammad Ardian Maulana - 103012400116</li>
+          <li>Handri Athallah Saputra - 103012400328</li>
+          <li>Keanu Fibie Dimasyqi - 1030124300453</li>
         </ul>
-    </section>
+      </section>
 
-    <!-- PENJELASAN ARSITEKTUR -->
-    <section class="card">
+      <!-- PENJELASAN ARSITEKTUR -->
+      <section class="card">
         <h3>Arsitektur Client-Proxy-Server</h3>
-        <p>Proyek ini mensimulasikan komunikasi tiga lapis (three-tier architecture) menggunakan socket programming murni di Python:</p>
+        <p>
+          Proyek ini mensimulasikan komunikasi tiga lapis (three-tier
+          architecture) menggunakan socket programming murni di Python:
+        </p>
         <div class="flow-container">
-            <div class="flow-node">
-                <strong>Client</strong>
-                <p>Mengirim request HTTP GET</p>
-            </div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-node">
-                <strong>Proxy Server</strong>
-                <p>Memeriksa Cache RAM & Forward</p>
-            </div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-node">
-                <strong>Web Server</strong>
-                <p>Menyajikan file HTML & Echo UDP</p>
-            </div>
+          <div class="flow-node">
+            <strong>Client</strong>
+            <p>Mengirim request HTTP GET</p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <strong>Proxy Server</strong>
+            <p>Memeriksa Cache RAM & Forward</p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <strong>Web Server</strong>
+            <p>Menyajikan file HTML & Echo UDP</p>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <!-- PENJELASAN KONSEP UTAMA -->
-    <section class="card">
+      <!-- PENJELASAN KONSEP UTAMA -->
+      <section class="card">
         <h3>Konsep & Protokol Jaringan</h3>
         <div class="concept-list">
-            <div class="concept-card">
-                <h4>1. HTTP menggunakan TCP Socket</h4>
-                <p>Protokol HTTP berjalan di atas TCP (Transmission Control Protocol) yang menjamin pengiriman paket data secara andal, berurutan, dan bebas kesalahan (reliable). Digunakan untuk mengirim request dari Client, melewati Proxy, hingga ke Web Server.</p>
-            </div>
-            <div class="concept-card">
-                <h4>2. QoS menggunakan UDP Socket</h4>
-                <p>UDP (User Datagram Protocol) digunakan untuk pengujian kualitas jaringan (Quality of Service - QoS) karena tidak memiliki overhead handshaking TCP. Parameter yang diukur meliputi:</p>
-                <ul style="margin-left: 20px; margin-top: 5px; font-size: 0.9rem; color: #475569;">
-                    <li><strong>RTT (Delay)</strong>: Waktu bolak-balik pengiriman paket.</li>
-                    <li><strong>Jitter</strong>: Variasi selisih delay antar paket berturut-turut.</li>
-                    <li><strong>Packet Loss</strong>: Persentase paket yang hilang selama pengiriman.</li>
-                    <li><strong>Throughput</strong>: Kecepatan transfer data riil dalam unit Kbps.</li>
-                </ul>
-            </div>
-            <div class="concept-card">
-                <h4>3. Proxy Caching (HIT / MISS)</h4>
-                <p>Untuk mempercepat akses data, Proxy Server menyimpan halaman web yang sering diakses di dalam memori RAM (Dictionary). Ketika Client meminta halaman yang sama, Proxy mengirimkannya langsung dari memori (Cache HIT) tanpa menghubungi Web Server, menghemat bandwidth dan waktu.</p>
-            </div>
+          <div class="concept-card">
+            <h4>1. HTTP menggunakan TCP Socket</h4>
+            <p>
+              Protokol HTTP berjalan di atas TCP (Transmission Control Protocol)
+              yang menjamin pengiriman paket data secara andal, berurutan, dan
+              bebas kesalahan (reliable). Digunakan untuk mengirim request dari
+              Client, melewati Proxy, hingga ke Web Server.
+            </p>
+          </div>
+          <div class="concept-card">
+            <h4>2. QoS menggunakan UDP Socket</h4>
+            <p>
+              UDP (User Datagram Protocol) digunakan untuk pengujian kualitas
+              jaringan (Quality of Service - QoS) karena tidak memiliki overhead
+              handshaking TCP. Parameter yang diukur meliputi:
+            </p>
+            <ul
+              style="
+                margin-left: 20px;
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #475569;
+              "
+            >
+              <li>
+                <strong>RTT (Delay)</strong>: Waktu bolak-balik pengiriman
+                paket.
+              </li>
+              <li>
+                <strong>Jitter</strong>: Variasi selisih delay antar paket
+                berturut-turut.
+              </li>
+              <li>
+                <strong>Packet Loss</strong>: Persentase paket yang hilang
+                selama pengiriman.
+              </li>
+              <li>
+                <strong>Throughput</strong>: Kecepatan transfer data riil dalam
+                unit Kbps.
+              </li>
+            </ul>
+          </div>
+          <div class="concept-card">
+            <h4>3. Proxy Caching (HIT / MISS)</h4>
+            <p>
+              Untuk mempercepat akses data, Proxy Server menyimpan halaman web
+              yang sering diakses di dalam memori RAM (Dictionary). Ketika
+              Client meminta halaman yang sama, Proxy mengirimkannya langsung
+              dari memori (Cache HIT) tanpa menghubungi Web Server, menghemat
+              bandwidth dan waktu.
+            </p>
+          </div>
         </div>
-    </section>
-</main>
+      </section>
+    </main>
 
-<!-- FOOTER -->
-<footer>
-    <p>&copy; 2026 IFLAB | Tugas Besar Jaringan Komputer</p>
-</footer>
-
-</body>
+    <!-- FOOTER -->
+    <footer>
+      <p>&copy; 2026 IFLAB | Tugas Besar Jaringan Komputer</p>
+    </footer>
+  </body>
 </html>

@@ -6,9 +6,9 @@ import time
 # CONFIGURATION
 # =========================================
 # Default IP dan Port
-proxy_ip = "127.0.0.1"
+proxy_ip = "192.168.1.72"
 proxy_port = 8080
-server_ip = "127.0.0.1"
+server_ip = "192.168.1.71"
 udp_port = 9000
 
 # =========================================
@@ -98,7 +98,7 @@ def test_qos(s_ip, s_udp_port):
     
     rtts = []
     lost_packets = 0
-    total_packets = 10
+    total_packets = 250
     total_bytes = 0
     
     for i in range(total_packets):
