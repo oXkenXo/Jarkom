@@ -1,659 +1,175 @@
 import socket
 import threading
-import os
-import time
-from datetime import datetime
 
-HOST = ""
+# =========================================
+# CONFIGURATION & GLOBAL CACHE
+# =========================================
 PROXY_PORT = 8080
-
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 8000
-
 BUFFER_SIZE = 4096
-TIMEOUT = 10
 
-CACHE_DIR = "cache"
-
+# Dictionary RAM untuk menyimpan cache (key: path, value: response_bytes)
+cache = {}
+# Lock untuk sinkronisasi thread agar aman dari race condition (thread-safe)
 cache_lock = threading.Lock()
 
+# =========================================
+# CACHE OPERATIONS
+# =========================================
+def check_cache(path):
+    """
+    Memeriksa apakah path request sudah tersimpan di cache RAM.
+    """
+    with cache_lock:
+        if path in cache:
+            return cache[path]
+    return None
 
-def log(message):
+def save_to_cache(path, response):
+    """
+    Menyimpan response data Web Server ke dalam cache RAM.
+    """
+    with cache_lock:
+        cache[path] = response
 
-    timestamp = datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
-
-    print(
-        "[" + timestamp + "] "
-        + message
-    )
-
-
-def get_cache_path(path):
-
-    safe_name = path.replace(
-        "/",
-        "_"
-    )
-
-    if safe_name == "_" or safe_name == "":
-        safe_name = "_index.html"
-
-    return os.path.join(
-        CACHE_DIR,
-        safe_name
-    )
-
-
-def cache_exists(path):
-
-    return os.path.exists(
-        get_cache_path(path)
-    )
-
-
-def cache_read(path):
-
+def add_cache_header(response, cache_status):
+    """
+    Menyisipkan custom header X-Cache (HIT/MISS) ke HTTP response.
+    Memungkinkan browser/JavaScript membaca status cache proxy.
+    """
     try:
-
-        with open(
-            get_cache_path(path),
-            "rb"
-        ) as file:
-
-            return file.read()
-
+        parts = response.split(b"\r\n\r\n", 1)
+        if len(parts) == 2:
+            headers, body = parts[0], parts[1]
+            new_headers = headers + f"\r\nX-Cache: {cache_status}\r\nAccess-Control-Expose-Headers: X-Cache".encode('utf-8')
+            return new_headers + b"\r\n\r\n" + body
     except:
-
-        return None
-
-
-def cache_write(path,data):
-
-    try:
-
-        with open(
-            get_cache_path(path),
-            "wb"
-        ) as file:
-
-            file.write(data)
-
-    except Exception as error:
-
-        log(
-            "Cache write error: "
-            + str(error)
-        )
-
-
-def parse_request(raw_request):
-
-    try:
-
-        header = raw_request.split(
-            "\r\n\r\n"
-        )[0]
-
-        first_line = header.split(
-            "\r\n"
-        )[0]
-
-        bagian = first_line.split()
-
-        if len(bagian) < 2:
-
-            return None,None
-
-        method = bagian[0]
-        path = bagian[1]
-
-        if path == "/":
-            path="/index.html"
-
-        return method,path
-
-    except:
-
-        return None,None
-
-
-def get_status_code(response):
-
-    try:
-
-        first_line = response\
-            .split(
-            b"\r\n"
-        )[0].decode()
-
-        return first_line.split()[1]
-
-    except:
-
-        return "???"
-
-
-def forward_to_server(request):
-
-    server_socket = socket.socket(
-        socket.AF_INET,
-        socket.SOCK_STREAM
-    )
-
-    server_socket.settimeout(
-        TIMEOUT
-    )
-
-    try:
-
-        server_socket.connect(
-            (
-                SERVER_HOST,
-                SERVER_PORT
-            )
-        )
-
-        server_socket.sendall(
-            request
-        )
-
-        response = b""
-
-        while True:
-
-            data = server_socket.recv(
-                BUFFER_SIZE
-            )
-
-            if not data:
-                break
-
-            response += data
-
-        return response
-
-    finally:
-
-        server_socket.close()
-
-
-def build_error_response(
-        status,
-        description
-):
-
-    body=(
-
-        "<h1>"
-        +status+
-        "</h1>"
-
-        "<p>"
-        +description+
-        "</p>"
-    )
-
-    body=body.encode()
-
-    response=(
-
-        "HTTP/1.1 "
-        +status+
-        "\r\n"
-
-        "Content-Type:text/html\r\n"
-
-        "Content-Length:"
-        +str(
-            len(body)
-        )
-        +"\r\n"
-
-        "Connection:close\r\n"
-
-        "\r\n"
-
-    ).encode()
-
-    response+=body
-
+        pass
     return response
 
-
-def handle_client(
-        client_socket,
-        client_address
-):
-
-    client_socket.settimeout(5.0)
-
-    client_ip = client_address[0]
-
-    start_time=time.time()
-
-    log(
-        "Client terhubung: "
-        +str(client_address)
-    )
-
-    try:
-
-        request=b""
-
-        while b"\r\n\r\n" \
-            not in request:
-
-            data=client_socket.recv(
-                BUFFER_SIZE
-            )
-
-            if not data:
-                break
-
-            request+=data
-
-
-        if not request:
-
-            client_socket.close()
-
-            return
-
-
-        request_text=request.decode(
-            "utf-8",
-            errors="ignore"
-        )
-
-        log(
-            "Request: "
-            +request_text.split(
-                "\n"
-            )[0]
-        )
-
-
-        method,path=\
-            parse_request(
-                request_text
-            )
-
-
-        if method is None:
-
-            response=\
-            build_error_response(
-
-                "400 Bad Request",
-
-                "Request invalid"
-
-            )
-
-            client_socket.sendall(
-                response
-            )
-
-            client_socket.close()
-
-            return
-
-
-        if method!="GET":
-
-            response=\
-            build_error_response(
-
-                "501 Not Implemented",
-
-                "Only GET supported"
-
-            )
-
-            client_socket.sendall(
-                response
-            )
-
-            client_socket.close()
-
-            return
-
-
-        response = None
-        with cache_lock:
-            if cache_exists(path):
-                response = cache_read(path)
-
-        if response:
-
-                client_socket.sendall(
-                    response
-                )
-
-                response_time=round(
-                    (
-                     time.time()
-                     -start_time
-                    )*1000,
-                    2
-                )
-
-                log(
-
-                    "IP: "
-                    +client_ip+
-
-                    " | URL: "
-                    +path+
-
-                    " | Cache: HIT"
-
-                    +" | Response Time: "
-
-                    +str(
-                        response_time
-                    )
-
-                    +" ms"
-
-                    +" | Size: "
-
-                    +str(
-                        len(response)
-                    )
-
-                    +" bytes"
-
-                )
-
-                client_socket.close()
-
-                return
-
-
-        try:
-
-            response=\
-            forward_to_server(
-                request
-            )
-
-
-        except socket.timeout:
-
-            response=\
-            build_error_response(
-
-                "504 Gateway Timeout",
-
-                "Server timeout"
-
-            )
-
-            client_socket.sendall(
-                response
-            )
-
-            client_socket.close()
-
-            return
-
-
-        except ConnectionRefusedError:
-
-            response=\
-            build_error_response(
-
-                "502 Bad Gateway",
-
-                "Server unreachable"
-
-            )
-
-            client_socket.sendall(
-                response
-            )
-
-            client_socket.close()
-
-            return
-
-
-        except Exception as error:
-
-            log(
-                "Forward Error: "
-                +str(error)
-            )
-
-            response=\
-            build_error_response(
-
-                "502 Bad Gateway",
-
-                "Proxy Error"
-
-            )
-
-            client_socket.sendall(
-                response
-            )
-
-            client_socket.close()
-
-            return
-
-
-        status=\
-        get_status_code(
-            response
-        )
-
-
-        if status=="200":
-
-            with cache_lock:
-
-                cache_write(
-                    path,
-                    response
-                )
-
-            cache_status=\
-            "MISS->SAVE"
-
-        else:
-
-            cache_status=\
-            "MISS"
-
-
-        client_socket.sendall(
-            response
-        )
-
-
-        response_time=round(
-
-            (
-                time.time()
-                -start_time
-            )*1000,
-
-            2
-
-        )
-
-
-        log(
-
-            "IP: "
-            +client_ip+
-
-            " | URL: "
-            +path+
-
-            " | Cache: "
-            +cache_status+
-
-            " | Status: "
-            +status+
-
-            " | Response Time: "
-            +str(
-                response_time
-            )
-
-            +" ms"
-
-            +" | Size: "
-
-            +str(
-                len(response)
-            )
-
-            +" bytes"
-
-        )
-
-
-    except Exception as error:
-
-        log(
-            "Error: "
-            +str(error)
-        )
-
-        try:
-
-            response=\
-            build_error_response(
-
-                "500 Internal Server Error",
-
-                "Proxy Internal Error"
-
-            )
-
-            client_socket.sendall(
-                response
-            )
-
-        except:
-            pass
-
-
-    client_socket.close()
-
-    log(
-        "Koneksi ditutup"
-    )
-
-    log(
-        "-------------------"
-    )
-
-
-def main():
-
-    if not os.path.exists(
-        CACHE_DIR
-    ):
-
-        os.makedirs(
-            CACHE_DIR
-        )
-
-        log(
-            "Folder cache dibuat"
-        )
-
-
-    proxy_socket=socket.socket(
-
-        socket.AF_INET,
-
-        socket.SOCK_STREAM
-
-    )
-
-    proxy_socket.setsockopt(
-
-        socket.SOL_SOCKET,
-
-        socket.SO_REUSEADDR,
-
-        1
-
-    )
-
-    proxy_socket.bind(
-        (
-            HOST,
-            PROXY_PORT
-        )
-    )
-
-    proxy_socket.listen(5)
-
-
-    log(
-        "Proxy Server berjalan"
-    )
-
-    log(
-        "Port: "
-        +str(PROXY_PORT)
-    )
-
-    log(
-        "Forward ke: "
-        +SERVER_HOST+
-        ":"+
-        str(SERVER_PORT)
-    )
-
-    log(
-        "Folder cache: "
-        +CACHE_DIR
-    )
-
-    log(
-        "-------------------"
-    )
-
-
+# =========================================
+# FORWARD REQUEST TO WEB SERVER
+# =========================================
+def send_request(web_server_ip, web_server_port, request_data):
+    """
+    Membuka socket TCP ke Web Server, meneruskan request client,
+    dan mengembalikan seluruh response dari Web Server.
+    """
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.connect((web_server_ip, web_server_port))
+    server_socket.sendall(request_data)
+    
+    response = b""
     while True:
+        data = server_socket.recv(BUFFER_SIZE)
+        if not data:
+            break
+        response += data
+        
+    server_socket.close()
+    return response
 
-        client_socket,\
-        client_address=\
-        proxy_socket.accept()
+# =========================================
+# CLIENT HANDLER (TCP PROXY)
+# =========================================
+def handle_client(client_socket, client_address, web_server_ip, web_server_port):
+    """
+    Menangani request TCP Client:
+    1. Membaca HTTP request dari client.
+    2. Jika request GET, memeriksa RAM Cache (HIT/MISS).
+    3. Jika MISS, forward ke Web Server, simpan ke cache jika sukses, lalu kirim balik.
+    """
+    print(f"[Proxy] Koneksi masuk dari client: {client_address[0]}:{client_address[1]}")
+    try:
+        request_data = client_socket.recv(BUFFER_SIZE)
+        if not request_data:
+            return
+            
+        request_text = request_data.decode('utf-8', errors='ignore')
+        lines = request_text.split("\r\n")
+        if len(lines) == 0 or not lines[0]:
+            return
+            
+        first_line = lines[0]
+        parts = first_line.split()
+        if len(parts) < 2:
+            return
+            
+        method, path = parts[0], parts[1]
+        print(f"[Proxy] Request: {method} {path}")
+        
+        if method == "GET":
+            # 1. Cek Cache
+            cached_response = check_cache(path)
+            
+            if cached_response:
+                print(f"[CACHE HIT] Melayani request '{path}' langsung dari RAM Cache.")
+                response_to_send = add_cache_header(cached_response, "HIT")
+                client_socket.sendall(response_to_send)
+            else:
+                print(f"[CACHE MISS] Mengambil '{path}' dari Web Server...")
+                # 2. Forward ke Web Server
+                server_response = send_request(web_server_ip, web_server_port, request_data)
+                
+                # 3. Simpan ke Cache jika respon 200 OK
+                if b"200 OK" in server_response:
+                    save_to_cache(path, server_response)
+                    print(f"[Proxy] Sukses menyimpan '{path}' ke RAM Cache.")
+                    
+                # 4. Kirim balik ke client
+                response_to_send = add_cache_header(server_response, "MISS")
+                client_socket.sendall(response_to_send)
+        else:
+            # Kirim error jika bukan request GET
+            error_body = "<h1>501 Not Implemented</h1>"
+            error_response = (
+                "HTTP/1.1 501 Not Implemented\r\n"
+                "Content-Type: text/html\r\n"
+                f"Content-Length: {len(error_body)}\r\n"
+                "Connection: close\r\n\r\n"
+                f"{error_body}"
+            ).encode('utf-8')
+            client_socket.sendall(error_response)
+    except Exception as e:
+        print(f"[Proxy] Error melayani client: {e}")
+    finally:
+        client_socket.close()
+        print("-" * 50)
 
+# =========================================
+# PROXY STARTUP
+# =========================================
+def start_server():
+    """
+    Memulai Proxy Server TCP. Meminta input IP dan Port Web Server tujuan,
+    lalu mendengarkan koneksi dari client secara multi-threaded.
+    """
+    print("=== PENGATURAN PROXY SERVER ===")
+    web_server_ip = input("Masukkan IP Web Server (default: 127.0.0.1): ").strip() or "127.0.0.1"
+    web_server_port_str = input("Masukkan Port Web Server (default: 8000): ").strip() or "8000"
+    web_server_port = int(web_server_port_str)
 
-        thread=\
-        threading.Thread(
-
-            target=
-            handle_client,
-
-            args=(
-                client_socket,
-                client_address
+    proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    proxy_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
+    try:
+        # Bind ke 0.0.0.0 agar mendengarkan dari IP lokal WiFi/Hotspot
+        proxy_socket.bind(("0.0.0.0", PROXY_PORT))
+        proxy_socket.listen(10)
+        print(f"\n[Proxy Server] Berjalan di port {PROXY_PORT}...")
+        print(f"[Proxy Server] Meneruskan request ke Web Server di {web_server_ip}:{web_server_port}")
+        print("-" * 50)
+        
+        while True:
+            client_socket, client_address = proxy_socket.accept()
+            client_thread = threading.Thread(
+                target=handle_client,
+                args=(client_socket, client_address, web_server_ip, web_server_port)
             )
+            client_thread.start()
+    except Exception as e:
+        print(f"[Proxy Server] Gagal berjalan: {e}")
+    finally:
+        proxy_socket.close()
 
-        )
-
-        thread.start()
-
-
-        log(
-            "Thread dibuat: "
-            +thread.name
-        )
-
-
-if __name__=="__main__":
-
-    main()
+if __name__ == "__main__":
+    start_server()

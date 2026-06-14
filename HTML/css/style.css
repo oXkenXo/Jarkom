@@ -1,27 +1,6 @@
-/* ===============================
-   1. VARIABLES
-================================ */
-:root {
-    --primary: #1e3a8a;
-    --secondary: #764ba2;
-    --accent: #facc15;
-
-    --bg-gradient: linear-gradient(135deg, #667eea, #764ba2);
-
-    --text-main: #1f2937;
-    --text-muted: #64748b;
-    --white: #ffffff;
-
-    --radius-lg: 16px;
-    --radius-md: 12px;
-
-    --shadow-sm: 0 4px 6px rgba(0,0,0,0.1);
-    --shadow-md: 0 10px 15px rgba(0,0,0,0.1);
-}
-
-/* ===============================
-   2. RESET
-================================ */
+/* =========================================
+   1. GLOBAL STYLES & RESET
+   ========================================= */
 * {
     margin: 0;
     padding: 0;
@@ -29,278 +8,245 @@
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: var(--bg-gradient);
-    color: var(--text-main);
-    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f5f9;
+    color: #334155;
+    line-height: 1.6;
 }
 
-/* ===============================
-   3. DARK MODE
-================================ */
-body.dark {
-    background: #0f172a;
-    color: #e2e8f0;
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
 }
 
-body.dark header,
-body.dark .card,
-body.dark .box {
-    background: #1e293b;
-    color: #e2e8f0;
-}
-
-/* ===============================
-   4. HEADER
-================================ */
+/* =========================================
+   2. HEADER & NAVIGATION
+   ========================================= */
 header {
-    background: var(--white);
-    padding: 40px 20px;
+    background: #ffffff;
+    padding: 30px 20px;
     text-align: center;
-    box-shadow: var(--shadow-sm);
+    border-bottom: 2px solid #e2e8f0;
 }
 
 header h1 {
-    color: var(--primary);
+    color: #1e3a8a;
+    font-size: 2.2rem;
+    margin-bottom: 5px;
 }
 
-/* ===============================
-   5. NAVBAR
-================================ */
+header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
 nav {
-    background: rgba(30, 58, 138, 0.9);
-    padding: 15px;
+    background: #1e3a8a;
+    padding: 12px;
     text-align: center;
     position: sticky;
     top: 0;
+    z-index: 100;
 }
 
 nav a {
-    color: white;
+    color: #ffffff;
     margin: 0 15px;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+nav a:hover {
+    color: #93c5fd;
 }
 
 nav a.active {
-    color: var(--accent);
+    color: #facc15;
+    border-bottom: 2px solid #facc15;
+    padding-bottom: 2px;
 }
 
-/* ===============================
-   6. HERO
-================================ */
-.hero {
-    text-align: center;
-    color: white;
-    padding: 80px 20px;
-}
-
-/* ===============================
-   7. CARD
-================================ */
+/* =========================================
+   3. CARDS & SECTIONS
+   ========================================= */
 .card {
-    background: white;
-    margin: 30px auto;
-    padding: 40px;
-    border-radius: var(--radius-lg);
-    max-width: 900px;
-    box-shadow: var(--shadow-md);
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-/* ===============================
-   8. GRID & BOX
-================================ */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    padding: 20px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.box {
-    background: white;
+    background: #ffffff;
     padding: 30px;
-    border-radius: var(--radius-lg);
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    transition: 0.3s;
-}
-
-.box:hover {
-    transform: translateY(-8px);
-}
-
-/* ===============================
-   9. BUTTON
-================================ */
-.btn {
-    display: inline-block;
-    background: var(--accent);
-    color: var(--primary);
-    padding: 12px 25px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* ===============================
-   10. MEDIA
-================================ */
-.img-center {
-    display: block;
-    max-width: 100%;
-    margin: 20px auto;
-    border-radius: var(--radius-md);
-}
-
-.video-container {
-    position: relative;
-    padding-bottom: 56.25%;
-    height: 0;
-}
-
-.video-container iframe {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.video-player {
-    width: 100%;
-    max-width: 800px;
-    display: block;
-    margin: 20px auto;
-    border-radius: 12px;
-}
-
-/* ===============================
-   11. INTERACTIVE BOX
-================================ */
-.osi-interactive div,
-.tcpip-interactive div,
-.qos-interactive div,
-.step-box {
-    background: #e0e7ff;
-    padding: 12px;
     border-radius: 8px;
-    cursor: pointer;
-    margin: 5px;
-    transition: 0.3s;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
 }
 
-.step-box:hover {
-    background: #c7d2fe;
+.card h2, .card h3 {
+    color: #1e3a8a;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 8px;
 }
 
-/* ACTIVE */
-.active-box {
-    background: #a5b4fc !important;
+/* =========================================
+   4. FLOW & CONCEPT LAYOUTS
+   ========================================= */
+.flow-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
 }
 
-/* ===============================
-   12. PACKET FLOW 🔥
-================================ */
-.packet-flow {
-    position: relative;
-    margin: 40px auto;
-    max-width: 700px;
-    height: 120px;
-}
-
-.node {
-    position: absolute;
-    top: 40px;
-    width: 120px;
+.flow-node {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #3b82f6;
+    padding: 15px;
+    border-radius: 6px;
+    flex: 1;
     text-align: center;
-    color: white;
+}
+
+.flow-node strong {
+    color: #1e3a8a;
+    font-size: 1.05rem;
+}
+
+.flow-node p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+.flow-arrow {
+    font-size: 1.8rem;
+    color: #3b82f6;
     font-weight: bold;
 }
 
-.client { left: 0; }
-.server { right: 0; }
-
-.packet {
-    position: absolute;
-    top: 55px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
+.concept-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* request */
-.packet.request {
-    background: #38bdf8;
-    animation: moveRight 2s linear infinite;
+.concept-card {
+    background: #f8fafc;
+    border-left: 4px solid #cbd5e1;
+    padding: 20px;
+    border-radius: 0 6px 6px 0;
 }
 
-/* response */
-.packet.response {
-    background: #4ade80;
-    animation: moveLeft 2s linear infinite;
+.concept-card:nth-child(1) { border-left-color: #3b82f6; }
+.concept-card:nth-child(2) { border-left-color: #10b981; }
+.concept-card:nth-child(3) { border-left-color: #8b5cf6; }
+
+.concept-card h4 {
+    color: #1e293b;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
 }
 
-@keyframes moveRight {
-    0% { left: 120px; }
-    100% { left: calc(100% - 140px); }
+.concept-card p {
+    font-size: 0.95rem;
+    color: #475569;
 }
 
-@keyframes moveLeft {
-    0% { left: calc(100% - 140px); }
-    100% { left: 120px; }
+/* =========================================
+   5. TEMPLATE SPECIFIC ELEMENTS (OSI, TCPIP)
+   ========================================= */
+.layer-list, .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
 }
 
-/* ===============================
-   13. ERROR PAGE
-================================ */
+.layer-item, .step-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.layer-item strong, .step-item strong {
+    color: #1e3a8a;
+}
+
+/* =========================================
+   6. ERROR PAGES
+   ========================================= */
 .error-wrapper {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
 }
 
 .error-box {
-    text-align:center;
-    color:white;
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(12px);
-    padding: 60px 40px;
-    border-radius: 20px;
+    text-align: center;
+    background: #ffffff;
+    padding: 50px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    width: 100%;
 }
 
-.error-code {
-    font-size: 100px;
+.error-box h1 {
+    font-size: 6rem;
+    color: #ef4444;
+    line-height: 1;
+    margin-bottom: 10px;
 }
 
-/* ===============================
-   14. FOOTER
-================================ */
+.error-box h2 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.error-box p {
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.error-btn {
+    display: inline-block;
+    background: #3b82f6;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.error-btn:hover {
+    background: #2563eb;
+}
+
+/* =========================================
+   7. FOOTER
+   ========================================= */
 footer {
     text-align: center;
-    padding: 30px;
-    background: var(--primary);
-    color: white;
-    margin-top: 50px;
+    padding: 20px;
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: #64748b;
+    border-top: 1px solid #e2e8f0;
 }
 
-/* ===============================
-   15. RESPONSIVE
-================================ */
-@media (max-width: 768px) {
-    .card {
-        padding: 25px;
+/* =========================================
+   8. RESPONSIVE
+   ========================================= */
+@media (max-width: 600px) {
+    .flow-container {
+        flex-direction: column;
     }
-
-    nav {
-        overflow-x: auto;
-        white-space: nowrap;
+    .flow-arrow {
+        transform: rotate(90deg);
+        margin: 5px 0;
     }
 }
